@@ -7,15 +7,20 @@
 //
 
 #import "AppDelegate.h"
+#import <UIKit/UIKit.h>
+#import "GLView.h"
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    // Override point for customization after application launch.
-    self.window.backgroundColor = [UIColor whiteColor];
-    [self.window makeKeyAndVisible];
+    CGRect screenBounds = [[UIScreen mainScreen] bounds];
+    
+    m_window = [[UIWindow alloc] initWithFrame: screenBounds];
+    m_view = [[GLView alloc] initWithFrame: screenBounds];
+    
+    [m_window addSubview: m_view];
+    [m_window makeKeyAndVisible];
     return YES;
 }
 
