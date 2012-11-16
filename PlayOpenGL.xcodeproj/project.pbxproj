@@ -10,7 +10,7 @@
 		BE52E5051655C2E700AA1C6C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE52E5041655C2E700AA1C6C /* Foundation.framework */; };
 		BE52E5071655C2E700AA1C6C /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE52E5061655C2E700AA1C6C /* CoreGraphics.framework */; };
 		BE52E50D1655C2E700AA1C6C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BE52E50B1655C2E700AA1C6C /* InfoPlist.strings */; };
-		BE52E50F1655C2E700AA1C6C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BE52E50E1655C2E700AA1C6C /* main.m */; };
+		BE52E50F1655C2E700AA1C6C /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = BE52E50E1655C2E700AA1C6C /* main.mm */; };
 		BE52E5131655C2E700AA1C6C /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = BE52E5121655C2E700AA1C6C /* AppDelegate.mm */; };
 		BE52E5151655C2E700AA1C6C /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = BE52E5141655C2E700AA1C6C /* Default.png */; };
 		BE52E5171655C2E700AA1C6C /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BE52E5161655C2E700AA1C6C /* Default@2x.png */; };
@@ -26,6 +26,7 @@
 		BE52E53E1655C4A500AA1C6C /* GLView.mm in Sources */ = {isa = PBXBuildFile; fileRef = BE52E53D1655C4A500AA1C6C /* GLView.mm */; };
 		BE52E5401655CDEA00AA1C6C /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BE52E53F1655CDE900AA1C6C /* Icon@2x.png */; };
 		BE52E5421655CDED00AA1C6C /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = BE52E5411655CDED00AA1C6C /* Icon.png */; };
+		BE52E5471655D3B000AA1C6C /* RenderingEngine1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE52E5451655D3B000AA1C6C /* RenderingEngine1.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,7 +46,7 @@
 		BE52E5061655C2E700AA1C6C /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		BE52E50A1655C2E700AA1C6C /* PlayOpenGL-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PlayOpenGL-Info.plist"; sourceTree = "<group>"; };
 		BE52E50C1655C2E700AA1C6C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		BE52E50E1655C2E700AA1C6C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		BE52E50E1655C2E700AA1C6C /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		BE52E5101655C2E700AA1C6C /* PlayOpenGL-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "PlayOpenGL-Prefix.pch"; sourceTree = "<group>"; };
 		BE52E5111655C2E700AA1C6C /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		BE52E5121655C2E700AA1C6C /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
@@ -65,6 +66,7 @@
 		BE52E53F1655CDE900AA1C6C /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
 		BE52E5411655CDED00AA1C6C /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
 		BE52E5441655CEE800AA1C6C /* IRenderingEngine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = IRenderingEngine.hpp; sourceTree = "<group>"; };
+		BE52E5451655D3B000AA1C6C /* RenderingEngine1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderingEngine1.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,12 +132,12 @@
 		BE52E5081655C2E700AA1C6C /* PlayOpenGL */ = {
 			isa = PBXGroup;
 			children = (
-				BE52E5431655CECA00AA1C6C /* Engine */,
 				BE52E5111655C2E700AA1C6C /* AppDelegate.h */,
 				BE52E5121655C2E700AA1C6C /* AppDelegate.mm */,
-				BE52E5091655C2E700AA1C6C /* Supporting Files */,
+				BE52E5431655CECA00AA1C6C /* Engine */,
 				BE52E53C1655C4A500AA1C6C /* GLView.h */,
 				BE52E53D1655C4A500AA1C6C /* GLView.mm */,
+				BE52E5091655C2E700AA1C6C /* Supporting Files */,
 			);
 			path = PlayOpenGL;
 			sourceTree = "<group>";
@@ -145,7 +147,7 @@
 			children = (
 				BE52E50A1655C2E700AA1C6C /* PlayOpenGL-Info.plist */,
 				BE52E50B1655C2E700AA1C6C /* InfoPlist.strings */,
-				BE52E50E1655C2E700AA1C6C /* main.m */,
+				BE52E50E1655C2E700AA1C6C /* main.mm */,
 				BE52E5101655C2E700AA1C6C /* PlayOpenGL-Prefix.pch */,
 				BE52E5141655C2E700AA1C6C /* Default.png */,
 				BE52E5161655C2E700AA1C6C /* Default@2x.png */,
@@ -177,6 +179,7 @@
 			isa = PBXGroup;
 			children = (
 				BE52E5441655CEE800AA1C6C /* IRenderingEngine.hpp */,
+				BE52E5451655D3B000AA1C6C /* RenderingEngine1.cpp */,
 			);
 			name = Engine;
 			sourceTree = "<group>";
@@ -292,9 +295,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BE52E50F1655C2E700AA1C6C /* main.m in Sources */,
+				BE52E50F1655C2E700AA1C6C /* main.mm in Sources */,
 				BE52E5131655C2E700AA1C6C /* AppDelegate.mm in Sources */,
 				BE52E53E1655C4A500AA1C6C /* GLView.mm in Sources */,
+				BE52E5471655D3B000AA1C6C /* RenderingEngine1.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
