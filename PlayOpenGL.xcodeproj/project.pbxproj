@@ -64,6 +64,7 @@
 		BE52E53D1655C4A500AA1C6C /* GLView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GLView.mm; sourceTree = "<group>"; };
 		BE52E53F1655CDE900AA1C6C /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
 		BE52E5411655CDED00AA1C6C /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		BE52E5441655CEE800AA1C6C /* IRenderingEngine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = IRenderingEngine.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,6 +130,7 @@
 		BE52E5081655C2E700AA1C6C /* PlayOpenGL */ = {
 			isa = PBXGroup;
 			children = (
+				BE52E5431655CECA00AA1C6C /* Engine */,
 				BE52E5111655C2E700AA1C6C /* AppDelegate.h */,
 				BE52E5121655C2E700AA1C6C /* AppDelegate.mm */,
 				BE52E5091655C2E700AA1C6C /* Supporting Files */,
@@ -169,6 +171,14 @@
 				BE52E5291655C2E700AA1C6C /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		BE52E5431655CECA00AA1C6C /* Engine */ = {
+			isa = PBXGroup;
+			children = (
+				BE52E5441655CEE800AA1C6C /* IRenderingEngine.hpp */,
+			);
+			name = Engine;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
