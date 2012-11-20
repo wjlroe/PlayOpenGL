@@ -27,6 +27,7 @@
 		BE52E5401655CDEA00AA1C6C /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BE52E53F1655CDE900AA1C6C /* Icon@2x.png */; };
 		BE52E5421655CDED00AA1C6C /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = BE52E5411655CDED00AA1C6C /* Icon.png */; };
 		BE52E5471655D3B000AA1C6C /* RenderingEngine1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE52E5451655D3B000AA1C6C /* RenderingEngine1.cpp */; };
+		BE991578165B00D800F18691 /* RenderingEngine2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE991577165B00D800F18691 /* RenderingEngine2.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +68,9 @@
 		BE52E5411655CDED00AA1C6C /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
 		BE52E5441655CEE800AA1C6C /* IRenderingEngine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = IRenderingEngine.hpp; sourceTree = "<group>"; };
 		BE52E5451655D3B000AA1C6C /* RenderingEngine1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderingEngine1.cpp; sourceTree = "<group>"; };
+		BE991575165AFE1900F18691 /* Simple.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = Simple.vert; path = Shaders/Simple.vert; sourceTree = "<group>"; };
+		BE991576165AFE3500F18691 /* Simple.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = Simple.frag; path = Shaders/Simple.frag; sourceTree = "<group>"; };
+		BE991577165B00D800F18691 /* RenderingEngine2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderingEngine2.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,6 +136,7 @@
 		BE52E5081655C2E700AA1C6C /* PlayOpenGL */ = {
 			isa = PBXGroup;
 			children = (
+				BE991571165AFD7F00F18691 /* Shaders */,
 				BE52E5111655C2E700AA1C6C /* AppDelegate.h */,
 				BE52E5121655C2E700AA1C6C /* AppDelegate.mm */,
 				BE52E5431655CECA00AA1C6C /* Engine */,
@@ -180,8 +185,18 @@
 			children = (
 				BE52E5441655CEE800AA1C6C /* IRenderingEngine.hpp */,
 				BE52E5451655D3B000AA1C6C /* RenderingEngine1.cpp */,
+				BE991577165B00D800F18691 /* RenderingEngine2.cpp */,
 			);
 			name = Engine;
+			sourceTree = "<group>";
+		};
+		BE991571165AFD7F00F18691 /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				BE991575165AFE1900F18691 /* Simple.vert */,
+				BE991576165AFE3500F18691 /* Simple.frag */,
+			);
+			name = Shaders;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -299,6 +314,7 @@
 				BE52E5131655C2E700AA1C6C /* AppDelegate.mm in Sources */,
 				BE52E53E1655C4A500AA1C6C /* GLView.mm in Sources */,
 				BE52E5471655D3B000AA1C6C /* RenderingEngine1.cpp in Sources */,
+				BE991578165B00D800F18691 /* RenderingEngine2.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -467,6 +483,7 @@
 				BE52E5331655C2E700AA1C6C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		BE52E5341655C2E700AA1C6C /* Build configuration list for PBXNativeTarget "PlayOpenGLTests" */ = {
 			isa = XCConfigurationList;
@@ -475,6 +492,7 @@
 				BE52E5361655C2E700AA1C6C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -17,6 +17,7 @@ enum DeviceOrientation {
 };
 
 struct IRenderingEngine* CreateRenderer1();
+struct IRenderingEngine* CreateRenderer2();
 
 struct IRenderingEngine {
     virtual void Initialize(int width, int height) = 0;

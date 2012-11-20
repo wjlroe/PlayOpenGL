@@ -10,14 +10,19 @@
 #include <OpenGLES/ES1/glext.h>
 #include "IRenderingEngine.hpp"
 
+static const float RevolutionsPerSecond = 0.5;
+
 class RenderingEngine1 : public IRenderingEngine {
 public:
     RenderingEngine1();
     void Initialize(int width, int height);
     void Render() const;
-    void UpdateAnimation(float timeStep) {}
-    void OnRotate(DeviceOrientation newOrientation) {}
+    void UpdateAnimation(float timeStep);
+    void OnRotate(DeviceOrientation newOrientation);
 private:
+    float RotationDirection() const;
+    float m_desiredAngle;
+    float m_currentAngle;
     GLuint m_framebuffer;
     GLuint m_renderbuffer;
 };
@@ -65,12 +70,18 @@ void RenderingEngine1::Initialize(int width, int height)
     glOrthof(-maxX, +maxX, -maxY, +maxY, -1, 1);
     
     glMatrixMode(GL_MODELVIEW);
+    
+    OnRotate(DeviceOrientationPortrait);
+    m_currentAngle = m_desiredAngle;
 }
 
 void RenderingEngine1::Render() const
 {
     glClearColor(0.9f, 0.5f, 0.5f, 1);
     glClear(GL_COLOR_BUFFER_BIT);
+    
+    glPushMatrix();
+    glRotatef(m_currentAngle, 0, 0, 1);
     
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
@@ -83,4 +94,63 @@ void RenderingEngine1::Render() const
     
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
+    
+    glPopMatrix();
+}
+
+void RenderingEngine1::UpdateAnimation(float timeStep)
+{
+    float direction = RotationDirection();
+    if (direction == 0) {
+        return;
+    }
+    
+    float degrees = timeStep * 360 * RevolutionsPerSecond;
+    m_currentAngle += degrees * direction;
+    
+    if (m_currentAngle >= 360) {
+        m_currentAngle -= 360;
+    } else if (m_currentAngle < 0) {
+        m_currentAngle += 360;
+    }
+    
+    if (RotationDirection() != direction) {
+        m_currentAngle = m_desiredAngle;
+    }
+}
+
+void RenderingEngine1::OnRotate(DeviceOrientation newOrientation)
+{
+    float angle = 0;
+    
+    switch (newOrientation) {
+        case DeviceOrientationLandscapeLeft:
+            angle = 270;
+            break;
+            
+        case DeviceOrientationPortraitUpsideDown:
+            angle = 180;
+            break;
+            
+        case DeviceOrientationLandscapeRight:
+            angle = 90;
+            break;
+            
+        default:
+            angle = 0;
+            break;
+    }
+    
+    m_desiredAngle = angle;
+}
+
+float RenderingEngine1::RotationDirection() const
+{
+    float delta = m_desiredAngle - m_currentAngle;
+    if (delta == 0) {
+        return 0;
+    }
+    
+    bool counterclockwise = ((delta > 0 && delta <= 180) || (delta < -180));
+    return counterclockwise ? +1 : -1;
 }
