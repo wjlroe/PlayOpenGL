@@ -84,9 +84,40 @@ void RenderingEngine2::Initialize(int width, int height)
     m_currentAngle = m_desiredAngle;
 }
 
+void RenderingEngine2::ApplyOrtho(float maxX, float maxY) const
+{
+    float a = 1.0f / maxX;
+    float b = 1.0f / maxY;
+    float ortho[16] = {
+        a, 0, 0, 0,
+        0, b, 0, 0,
+        0, 0, -1, 0,
+        0, 0, 0, 1
+    };
+    
+    GLint projectionUniform = glGetUniformLocation(m_simpleProgram, "Projection");
+    glUniformMatrix4fv(projectionUniform, 1, 0, &ortho[0]);
+}
+
+void RenderingEngine2::ApplyRotation(float degrees) const
+{
+    float radians = degrees * 3.14159f / 180.0f;
+    float s = std::sin(radians);
+    float c = std::cos(radians);
+    float zRotation[16] = {
+        c, s, 0, 0,
+        -s, c, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+    };
+    
+    GLint modelviewUniform = glGetUniformLocation(m_simpleProgram, "Modelview");
+    glUniformMatrix4fv(modelviewUniform, 1, 0, &zRotation[0]);
+}
+
 void RenderingEngine2::Render() const
 {
-    glClearColor(0.9f, 0.5f, 0.5f, 1);
+    glClearColor(0.5f, 0.5f, 0.5f, 1);
     glClear(GL_COLOR_BUFFER_BIT);
     
     ApplyRotation(m_currentAngle);
@@ -109,6 +140,17 @@ void RenderingEngine2::Render() const
     
     glDisableVertexAttribArray(positionSlot);
     glDisableVertexAttribArray(colorSlot);
+}
+
+float RenderingEngine2::RotationDirection() const
+{
+    float delta = m_desiredAngle - m_currentAngle;
+    if (delta == 0) {
+        return 0;
+    }
+    
+    bool counterclockwise = ((delta > 0 && delta <= 180) || (delta < -180));
+    return counterclockwise ? +1 : -1;
 }
 
 void RenderingEngine2::UpdateAnimation(float timeStep)
@@ -157,46 +199,23 @@ void RenderingEngine2::OnRotate(DeviceOrientation newOrientation)
     m_desiredAngle = angle;
 }
 
-float RenderingEngine2::RotationDirection() const
+GLuint RenderingEngine2::BuildShader(const char* source, GLenum shaderType) const
 {
-    float delta = m_desiredAngle - m_currentAngle;
-    if (delta == 0) {
-        return 0;
+    GLuint shaderHandle = glCreateShader(shaderType);
+    glShaderSource(shaderHandle, 1, &source, 0);
+    glCompileShader(shaderHandle);
+    
+    GLint compileSuccess;
+    glGetShaderiv(shaderHandle, GL_COMPILE_STATUS, &compileSuccess);
+    
+    if (compileSuccess == GL_FALSE) {
+        GLchar messages[256];
+        glGetShaderInfoLog(shaderHandle, sizeof(messages), 0, &messages[0]);
+        std::cout << messages;
+        exit(1);
     }
     
-    bool counterclockwise = ((delta > 0 && delta <= 180) || (delta < -180));
-    return counterclockwise ? +1 : -1;
-}
-
-void RenderingEngine2::ApplyOrtho(float maxX, float maxY) const
-{
-    float a = 1.0f / maxX;
-    float b = 1.0f / maxY;
-    float ortho[16] = {
-        a, 0, 0, 0,
-        0, b, 0, 0,
-        0, 0, -1, 0,
-        0, 0, 0, 1
-    };
-    
-    GLint projectionUniform = glGetUniformLocation(m_simpleProgram, "Projection");
-    glUniformMatrix4fv(projectionUniform, 1, 0, &ortho[0]);
-}
-
-void RenderingEngine2::ApplyRotation(float degrees) const
-{
-    float radians = degrees * 3.14159f / 180.0f;
-    float s = std::sin(radians);
-    float c = std::cos(radians);
-    float zRotation[16] = {
-        c, s, 0, 0,
-        -s, c, 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1
-    };
-    
-    GLint modelviewUniform = glGetUniformLocation(m_simpleProgram, "Modelview");
-    glUniformMatrix4fv(modelviewUniform, 1, 0, &zRotation[0]);
+    return shaderHandle;
 }
 
 GLuint RenderingEngine2::BuildProgram(const char* vertexShaderSource,
@@ -222,21 +241,3 @@ GLuint RenderingEngine2::BuildProgram(const char* vertexShaderSource,
     return programHandle;
 }
 
-GLuint RenderingEngine2::BuildShader(const char* source, GLenum shaderType) const
-{
-    GLuint shaderHandle = glCreateShader(shaderType);
-    glShaderSource(shaderHandle, 1, &source, 0);
-    glCompileShader(shaderHandle);
-    
-    GLint compileSuccess;
-    glGetShaderiv(shaderHandle, GL_COMPILE_STATUS, &compileSuccess);
-    
-    if (compileSuccess == GL_FALSE) {
-        GLchar messages[256];
-        glGetShaderInfoLog(shaderHandle, sizeof(messages), 0, &messages[0]);
-        std::cout << messages;
-        exit(1);
-    }
-    
-    return shaderHandle;
-}
