@@ -1,16 +1,25 @@
-//
-//  RenderingEngine1.cpp
-//  PlayOpenGL
-//
-//  Created by William Roe on 16/11/2012.
-//  Copyright (c) 2012 William Roe. All rights reserved.
-//
-
 #include <OpenGLES/ES1/gl.h>
 #include <OpenGLES/ES1/glext.h>
 #include "IRenderingEngine.hpp"
+#include "Quaternion.hpp"
+#include <vector>
 
-static const float RevolutionsPerSecond = 0.5;
+static const float AnimationDuration = 0.25f;
+
+using namespace std;
+
+struct Vertex {
+    vec3 Position;
+    vec4 Color;
+};
+
+struct Animation {
+    Quaternion Start;
+    Quaternion End;
+    Quaternion Current;
+    float Elapsed;
+    float Duration;
+};
 
 class RenderingEngine1 : public IRenderingEngine {
 public:
@@ -20,11 +29,12 @@ public:
     void UpdateAnimation(float timeStep);
     void OnRotate(DeviceOrientation newOrientation);
 private:
-    float RotationDirection() const;
-    float m_desiredAngle;
-    float m_currentAngle;
+    vector<Vertex> m_cone;
+    vector<Vertex> m_disk;
+    Animation m_animation;
     GLuint m_framebuffer;
-    GLuint m_renderbuffer;
+    GLuint m_colorRenderbuffer;
+    GLuint m_depthRenderbuffer;
 };
 
 IRenderingEngine* CreateRenderer1()
@@ -32,125 +42,46 @@ IRenderingEngine* CreateRenderer1()
     return new RenderingEngine1();
 }
 
-struct Vertex {
-    float Position[2];
-    float Color[4];
-};
-
-const Vertex Vertices[] = {
-    {{-0.5, -0.866}, {1, 1, 0.5f, 1}},
-    {{0.5, -0.866},  {1, 1, 0.5f, 1}},
-    {{0, 1},         {1, 1, 0.5f, 1}},
-    {{-0.5, -0.866}, {0.5f, 0.5f, 0.5f}},
-    {{0.5, -0.866},  {0.5f, 0.5f, 0.5f}},
-    {{0, -0.4f},     {0.5f, 0.5f, 0.5f}},
-};
-
 RenderingEngine1::RenderingEngine1()
 {
-    glGenRenderbuffersOES(1, &m_renderbuffer);
-    glBindRenderbufferOES(GL_RENDERBUFFER_OES, m_renderbuffer);
+    glGenRenderbuffersOES(1, &m_colorRenderbuffer);
+    glBindRenderbufferOES(GL_RENDERBUFFER_OES, m_colorRenderbuffer);
 }
 
 void RenderingEngine1::Initialize(int width, int height)
 {
+    const float coneRadius = 0.5f;
+    const float coneHeight = 1.866f;
+    const int coneSlices = 40;
+    
+    // generate vertices here
+    
+    glGenRenderbuffersOES(1, &m_depthRenderbuffer);
+    glBindRenderbufferOES(GL_RENDERBUFFER_OES, m_depthRenderbuffer);
+    glRenderbufferStorageOES(GL_RENDERBUFFER_OES,
+                             GL_DEPTH_COMPONENT16_OES,
+                             width,
+                             height);
+    
     glGenFramebuffersOES(1, &m_framebuffer);
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, m_framebuffer);
     glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES,
                                  GL_COLOR_ATTACHMENT0_OES,
                                  GL_RENDERBUFFER_OES,
-                                 m_renderbuffer);
+                                 m_colorRenderbuffer);
+    glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES,
+                                 GL_DEPTH_ATTACHMENT_OES,
+                                 GL_RENDERBUFFER_OES,
+                                 m_depthRenderbuffer);
+    
+    glBindRenderbufferOES(GL_RENDERBUFFER_OES, m_colorRenderbuffer);
     
     glViewport(0, 0, width, height);
+    glEnable(GL_DEPTH_TEST);
     
     glMatrixMode(GL_PROJECTION);
-    
-    const float maxX = 2;
-    const float maxY = 3;
-    glOrthof(-maxX, +maxX, -maxY, +maxY, -1, 1);
+    glFrustumf(-1.6f, 1.6, -2.4, 2.4, 5, 10);
     
     glMatrixMode(GL_MODELVIEW);
-    
-    OnRotate(DeviceOrientationPortrait);
-    m_currentAngle = m_desiredAngle;
-}
-
-void RenderingEngine1::Render() const
-{
-    glClearColor(0.9f, 0.5f, 0.5f, 1);
-    glClear(GL_COLOR_BUFFER_BIT);
-    
-    glPushMatrix();
-    glRotatef(m_currentAngle, 0, 0, 1);
-    
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    
-    glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &Vertices[0].Position[0]);
-    glColorPointer(4, GL_FLOAT, sizeof(Vertex), &Vertices[0].Color[0]);
-    
-    GLsizei vertexCount = sizeof(Vertices) / sizeof(Vertex);
-    glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-    
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-    
-    glPopMatrix();
-}
-
-void RenderingEngine1::UpdateAnimation(float timeStep)
-{
-    float direction = RotationDirection();
-    if (direction == 0) {
-        return;
-    }
-    
-    float degrees = timeStep * 360 * RevolutionsPerSecond;
-    m_currentAngle += degrees * direction;
-    
-    if (m_currentAngle >= 360) {
-        m_currentAngle -= 360;
-    } else if (m_currentAngle < 0) {
-        m_currentAngle += 360;
-    }
-    
-    if (RotationDirection() != direction) {
-        m_currentAngle = m_desiredAngle;
-    }
-}
-
-void RenderingEngine1::OnRotate(DeviceOrientation newOrientation)
-{
-    float angle = 0;
-    
-    switch (newOrientation) {
-        case DeviceOrientationLandscapeLeft:
-            angle = 270;
-            break;
-            
-        case DeviceOrientationPortraitUpsideDown:
-            angle = 180;
-            break;
-            
-        case DeviceOrientationLandscapeRight:
-            angle = 90;
-            break;
-            
-        default:
-            angle = 0;
-            break;
-    }
-    
-    m_desiredAngle = angle;
-}
-
-float RenderingEngine1::RotationDirection() const
-{
-    float delta = m_desiredAngle - m_currentAngle;
-    if (delta == 0) {
-        return 0;
-    }
-    
-    bool counterclockwise = ((delta > 0 && delta <= 180) || (delta < -180));
-    return counterclockwise ? +1 : -1;
+    glTranslatef(0, 0, -7);
 }
