@@ -13,7 +13,7 @@
 
 @implementation GLView
 
-const bool ForceES1 = false;
+const bool ForceES1 = true;
 
 + (Class)layerClass
 {
