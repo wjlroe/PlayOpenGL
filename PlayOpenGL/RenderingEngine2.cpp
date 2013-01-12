@@ -8,15 +8,33 @@
 
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
-#include <cmath>
+#include <vector>
 #include <iostream>
 #include "IRenderingEngine.hpp"
+#include "Quaternion.hpp"
 
 #define STRINGIFY(A) #A
 #include "Shaders/Simple.vert"
 #include "Shaders/Simple.frag"
 
-static const float RevolutionsPerSecond = 0.5;
+static const float AnimationDuration = 0.25f;
+
+using namespace std;
+
+struct Vertex {
+    vec3 Position;
+    vec4 Color;
+};
+
+struct Animation {
+    Quaternion Start;
+    Quaternion End;
+    Quaternion Current;
+    float Elapsed;
+    float Duration;
+};
+
+//static const float RevolutionsPerSecond = 0.5;
 
 class RenderingEngine2 : public IRenderingEngine {
 public:
@@ -26,16 +44,21 @@ public:
     void UpdateAnimation(float timeStep);
     void OnRotate(DeviceOrientation newOrientation);
 private:
-    float RotationDirection() const;
+    //float RotationDirection() const;
     GLuint BuildShader(const char* source, GLenum shaderType) const;
     GLuint BuildProgram(const char* vShader, const char* fShader) const;
-    void ApplyOrtho(float maxX, float maxY) const;
-    void ApplyRotation(float degrees) const;
-    float m_desiredAngle;
-    float m_currentAngle;
+    vector<Vertex> m_cone;
+    vector<Vertex> m_disk;
+    Animation m_animation;
+    //void ApplyOrtho(float maxX, float maxY) const;
+    //void ApplyRotation(float degrees) const;
+    //float m_desiredAngle;
+    //float m_currentAngle;
     GLuint m_simpleProgram;
     GLuint m_framebuffer;
-    GLuint m_renderbuffer;
+    GLuint m_colorRenderbuffer;
+    GLuint m_depthRenderbuffer;
+    //GLuint m_renderbuffer;
 };
 
 IRenderingEngine* CreateRenderer2()
@@ -43,160 +66,192 @@ IRenderingEngine* CreateRenderer2()
     return new RenderingEngine2();
 }
 
-struct Vertex {
-    float Position[2];
-    float Color[4];
-};
-
-const Vertex Vertices[] = {
-    {{-0.5, -0.866}, {1, 1, 0.5f, 1}},
-    {{0.5, -0.866},  {1, 1, 0.5f, 1}},
-    {{0, 1},         {1, 1, 0.5f, 1}},
-    {{-0.5, -0.866}, {0.5f, 0.5f, 0.5f}},
-    {{0.5, -0.866},  {0.5f, 0.5f, 0.5f}},
-    {{0, -0.4f},     {0.5f, 0.5f, 0.5f}},
-};
-
 RenderingEngine2::RenderingEngine2()
 {
-    glGenRenderbuffers(1, &m_renderbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, m_renderbuffer);
+    glGenRenderbuffers(1, &m_colorRenderbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, m_colorRenderbuffer);
 }
 
 void RenderingEngine2::Initialize(int width, int height)
 {
+    const float coneRadius = 0.5f;
+    const float coneHeight = 1.866f;
+    const int coneSlices = 40;
+    
+    // generate vertices here
+    {
+        m_cone.resize((coneSlices + 1) * 2);
+        
+        // Initialize the vertices of the triangle strip
+        vector<Vertex>::iterator vertex = m_cone.begin();
+        const float dtheta = TwoPi / coneSlices;
+        for (float theta = 0; vertex != m_cone.end(); theta += dtheta) {
+            //grayscale gradient
+            float brightness = abs(sin(theta));
+            vec4 color(brightness, brightness, brightness, 1);
+            
+            // apex vertex
+            vertex->Position = vec3(0, 1, 0);
+            vertex->Color = color;
+            vertex++;
+            
+            // Rim vertex
+            vertex->Position.x = coneRadius * cos(theta);
+            vertex->Position.y = 1 - coneHeight;
+            vertex->Position.z = coneRadius * sin(theta);
+            vertex->Color = color;
+            vertex++;
+        }
+    }
+    
+    {
+        // Allocate space for the disk vertices
+        m_disk.resize(coneSlices + 2);
+        
+        // Initialize the center vertex of the triangle fan
+        vector<Vertex>::iterator vertex = m_disk.begin();
+        vertex->Color = vec4(0.75, 0.75, 0.75, 1);
+        vertex->Position.x = 0;
+        vertex->Position.y = 1 - coneHeight;
+        vertex->Position.z = 0;
+        vertex++;
+        
+        // Initialize the rim vertices of the triangle fan
+        const float dtheta = TwoPi / coneSlices;
+        for (float theta = 0; vertex != m_disk.end(); theta += dtheta) {
+            vertex->Color = vec4(0.75, 0.75, 0.75, 1);
+            vertex->Position.x = coneRadius * cos(theta);
+            vertex->Position.y = 1 - coneHeight;
+            vertex->Position.z = coneRadius * sin(theta);
+            vertex++;
+        }
+    }
+    
+    glGenRenderbuffers(1, &m_depthRenderbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, m_depthRenderbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER,
+                          GL_DEPTH_COMPONENT16,
+                          width,
+                          height);
+    
     glGenFramebuffers(1, &m_framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER,
                               GL_COLOR_ATTACHMENT0,
                               GL_RENDERBUFFER,
-                              m_renderbuffer);
+                              m_colorRenderbuffer);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER,
+                              GL_DEPTH_ATTACHMENT,
+                              GL_RENDERBUFFER,
+                              m_depthRenderbuffer);
+    
+    glBindRenderbuffer(GL_RENDERBUFFER, m_colorRenderbuffer);
     
     glViewport(0, 0, width, height);
+    glEnable(GL_DEPTH_TEST);
     
     m_simpleProgram = BuildProgram(SimpleVertexShader, SimpleFragmentShader);
-    
     glUseProgram(m_simpleProgram);
     
-    ApplyOrtho(2, 3);
-    
-    OnRotate(DeviceOrientationPortrait);
-    m_currentAngle = m_desiredAngle;
-}
-
-void RenderingEngine2::ApplyOrtho(float maxX, float maxY) const
-{
-    float a = 1.0f / maxX;
-    float b = 1.0f / maxY;
-    float ortho[16] = {
-        a, 0, 0, 0,
-        0, b, 0, 0,
-        0, 0, -1, 0,
-        0, 0, 0, 1
-    };
-    
-    GLint projectionUniform = glGetUniformLocation(m_simpleProgram, "Projection");
-    glUniformMatrix4fv(projectionUniform, 1, 0, &ortho[0]);
-}
-
-void RenderingEngine2::ApplyRotation(float degrees) const
-{
-    float radians = degrees * 3.14159f / 180.0f;
-    float s = std::sin(radians);
-    float c = std::cos(radians);
-    float zRotation[16] = {
-        c, s, 0, 0,
-        -s, c, 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1
-    };
-    
-    GLint modelviewUniform = glGetUniformLocation(m_simpleProgram, "Modelview");
-    glUniformMatrix4fv(modelviewUniform, 1, 0, &zRotation[0]);
+    // Set the projection matrix
+    GLint projectionUniform = glGetUniformLocation(m_simpleProgram,
+                                                   "Projection");
+    mat4 projectionMatrix = mat4::Frustum(-1.6f, 1.6, -2.4, 2.4, 5, 10);
+    glUniformMatrix4fv(projectionUniform, 1, 0, projectionMatrix.Pointer());
 }
 
 void RenderingEngine2::Render() const
 {
-    glClearColor(0.5f, 0.5f, 0.5f, 1);
-    glClear(GL_COLOR_BUFFER_BIT);
-    
-    ApplyRotation(m_currentAngle);
-    
     GLuint positionSlot = glGetAttribLocation(m_simpleProgram, "Position");
     GLuint colorSlot = glGetAttribLocation(m_simpleProgram, "SourceColor");
+    
+    glClearColor(0.5f, 0.5f, 0.5f, 1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     glEnableVertexAttribArray(positionSlot);
     glEnableVertexAttribArray(colorSlot);
     
-    GLsizei stride = sizeof(Vertex);
-    const GLvoid* pCoords = &Vertices[0].Position[0];
-    const GLvoid* pColors = &Vertices[0].Color[0];
-
-    glVertexAttribPointer(positionSlot, 2, GL_FLOAT, GL_FALSE, stride, pCoords);
-    glVertexAttribPointer(colorSlot, 4, GL_FLOAT, GL_FALSE, stride, pColors);
+    mat4 rotation(m_animation.Current.ToMatrix());
+    mat4 translation = mat4::Translate(0, 0, -7);
     
-    GLsizei vertexCount = sizeof(Vertices) / sizeof(Vertex);
-    glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+    // set the model-view matrix
+    GLint modelviewUniform = glGetUniformLocation(m_simpleProgram, "Modelview");
+    mat4 modelviewMatrix = rotation * translation;
+    glUniformMatrix4fv(modelviewUniform, 1, 0, modelviewMatrix.Pointer());
+    
+    // draw the cone
+    {
+        GLsizei stride = sizeof(Vertex);
+        const GLvoid* pCoords = &m_cone[0].Position.x;
+        const GLvoid* pColors = &m_cone[0].Color.x;
+        glVertexAttribPointer(positionSlot, 3, GL_FLOAT, GL_FALSE, stride, pCoords);
+        glVertexAttribPointer(colorSlot, 4, GL_FLOAT, GL_FALSE, stride, pColors);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, m_cone.size());
+    }
+    
+    // draw the disk that caps off the base of the cone
+    {
+        GLsizei stride = sizeof(Vertex);
+        const GLvoid* pCoords = &m_disk[0].Position.x;
+        const GLvoid* pColors = &m_disk[0].Color.x;
+        glVertexAttribPointer(positionSlot, 3, GL_FLOAT, GL_FALSE, stride, pCoords);
+        glVertexAttribPointer(colorSlot, 4, GL_FLOAT, GL_FALSE, stride, pColors);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, m_disk.size());
+    }
     
     glDisableVertexAttribArray(positionSlot);
     glDisableVertexAttribArray(colorSlot);
 }
 
-float RenderingEngine2::RotationDirection() const
-{
-    float delta = m_desiredAngle - m_currentAngle;
-    if (delta == 0) {
-        return 0;
-    }
-    
-    bool counterclockwise = ((delta > 0 && delta <= 180) || (delta < -180));
-    return counterclockwise ? +1 : -1;
-}
-
 void RenderingEngine2::UpdateAnimation(float timeStep)
 {
-    float direction = RotationDirection();
-    if (direction == 0) {
+    if (m_animation.Current == m_animation.End) {
         return;
     }
     
-    float degrees = timeStep * 360 * RevolutionsPerSecond;
-    m_currentAngle += degrees * direction;
-    
-    if (m_currentAngle >= 360) {
-        m_currentAngle -= 360;
-    } else if (m_currentAngle < 0) {
-        m_currentAngle += 360;
-    }
-    
-    if (RotationDirection() != direction) {
-        m_currentAngle = m_desiredAngle;
+    m_animation.Elapsed += timeStep;
+    if (m_animation.Elapsed >= AnimationDuration) {
+        m_animation.Current = m_animation.End;
+    } else {
+        float mu = m_animation.Elapsed / AnimationDuration;
+        m_animation.Current = m_animation.Start.Slerp(mu, m_animation.End);
     }
 }
 
 void RenderingEngine2::OnRotate(DeviceOrientation newOrientation)
 {
-    float angle = 0;
+    vec3 direction;
     
     switch (newOrientation) {
-        case DeviceOrientationLandscapeLeft:
-            angle = 270;
+        case DeviceOrientationUnknown:
+        case DeviceOrientationPortrait:
+            direction = vec3(0, 1, 0);
             break;
             
         case DeviceOrientationPortraitUpsideDown:
-            angle = 180;
+            direction = vec3(0, -1, 0);
+            break;
+            
+        case DeviceOrientationFaceDown:
+            direction = vec3(0, 0, -1);
+            break;
+            
+        case DeviceOrientationFaceUp:
+            direction = vec3(0, 0, 1);
+            break;
+            
+        case DeviceOrientationLandscapeLeft:
+            direction = vec3(+1, 0, 0);
             break;
             
         case DeviceOrientationLandscapeRight:
-            angle = 90;
-            break;
-            
-        default:
-            angle = 0;
+            direction = vec3(-1, 0, 0);
             break;
     }
     
-    m_desiredAngle = angle;
+    m_animation.Elapsed = 0;
+    m_animation.Start = m_animation.Current = m_animation.End;
+    m_animation.End = Quaternion::CreateFromVectors(vec3(0, 1, 0), direction);
 }
 
 GLuint RenderingEngine2::BuildShader(const char* source, GLenum shaderType) const
