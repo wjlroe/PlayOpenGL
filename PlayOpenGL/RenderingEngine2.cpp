@@ -43,6 +43,9 @@ public:
     void Render() const;
     void UpdateAnimation(float timeStep);
     void OnRotate(DeviceOrientation newOrientation);
+    void OnFingerUp(ivec2 location);
+    void OnFingerDown(ivec2 location);
+    void OnFingerMove(ivec2 oldLocation, ivec2 newLocation);
 private:
     //float RotationDirection() const;
     GLuint BuildShader(const char* source, GLenum shaderType) const;
@@ -59,6 +62,9 @@ private:
     GLuint m_colorRenderbuffer;
     GLuint m_depthRenderbuffer;
     //GLuint m_renderbuffer;
+    GLfloat m_rotationAngle;
+    GLfloat m_scale;
+    ivec2 m_pivotPoint;
 };
 
 IRenderingEngine* CreateRenderer2()
@@ -66,7 +72,7 @@ IRenderingEngine* CreateRenderer2()
     return new RenderingEngine2();
 }
 
-RenderingEngine2::RenderingEngine2()
+RenderingEngine2::RenderingEngine2() : m_rotationAngle(0), m_scale(1)
 {
     glGenRenderbuffers(1, &m_colorRenderbuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, m_colorRenderbuffer);
@@ -74,6 +80,7 @@ RenderingEngine2::RenderingEngine2()
 
 void RenderingEngine2::Initialize(int width, int height)
 {
+    m_pivotPoint = ivec2(width / 2, height / 2);
     const float coneRadius = 0.5f;
     const float coneHeight = 1.866f;
     const int coneSlices = 40;
@@ -170,13 +177,14 @@ void RenderingEngine2::Render() const
     
     glEnableVertexAttribArray(positionSlot);
     glEnableVertexAttribArray(colorSlot);
-    
-    mat4 rotation(m_animation.Current.ToMatrix());
+
+    mat4 rotation = mat4::Rotate(m_rotationAngle);
+    mat4 scale = mat4::Scale(m_scale);
     mat4 translation = mat4::Translate(0, 0, -7);
     
     // set the model-view matrix
     GLint modelviewUniform = glGetUniformLocation(m_simpleProgram, "Modelview");
-    mat4 modelviewMatrix = rotation * translation;
+    mat4 modelviewMatrix = scale * rotation * translation;
     glUniformMatrix4fv(modelviewUniform, 1, 0, modelviewMatrix.Pointer());
     
     // draw the cone
@@ -296,3 +304,26 @@ GLuint RenderingEngine2::BuildProgram(const char* vertexShaderSource,
     return programHandle;
 }
 
+void RenderingEngine2::OnFingerUp(ivec2 location)
+{
+    m_scale = 1.0f;
+}
+
+void RenderingEngine2::OnFingerDown(ivec2 location)
+{
+    m_scale = 1.5f;
+    OnFingerMove(location, location);
+}
+
+void RenderingEngine2::OnFingerMove(ivec2 previous, ivec2 location)
+{
+    vec2 direction = vec2(location - m_pivotPoint).Normalized();
+
+    // Flip the y-axis because pixel coords increase towards the bottom
+    direction.y = -direction.y;
+
+    m_rotationAngle = std::acos(direction.y) * 180.0f / 3.14159f;
+    if (direction.x > 0) {
+        m_rotationAngle = -m_rotationAngle;
+    }
+}
