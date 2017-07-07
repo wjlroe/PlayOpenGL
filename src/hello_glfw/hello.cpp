@@ -1,10 +1,98 @@
 #include <GL/glew.h>
-#include <windows.h>
 #define GLFW_DLL
 #include <GLFW/glfw3.h>
 #include <stdio.h>
+#include <strsafe.h>
+#include <windows.h>
+
+#if 0
+void ErrorExit(const char *lpszFunction) {
+  // Retrieve the system error message for the last-error code
+
+  LPVOID lpMsgBuf;
+  LPVOID lpDisplayBuf;
+  DWORD dw = GetLastError();
+  printf("LastError: %d\n", dw);
+
+  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
+                    FORMAT_MESSAGE_IGNORE_INSERTS,
+                NULL, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                (LPTSTR)&lpMsgBuf, 0, NULL);
+  printf("\nError: %s\n", (LPTSTR)lpMsgBuf);
+
+  // Display the error message and exit the process
+
+  lpDisplayBuf = (LPVOID)LocalAlloc(
+      LMEM_ZEROINIT,
+      (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)lpszFunction) + 40) *
+          sizeof(TCHAR));
+  StringCchPrintf((LPTSTR)lpDisplayBuf, LocalSize(lpDisplayBuf) / sizeof(TCHAR),
+                  TEXT("%s failed with error %d: %s"), lpszFunction, dw,
+                  lpMsgBuf);
+  // MessageBox(NULL, (LPCTSTR)lpDisplayBuf, TEXT("Error"), MB_OK);
+
+  LocalFree(lpMsgBuf);
+  LocalFree(lpDisplayBuf);
+  ExitProcess(dw);
+}
+#endif
+
+char *LoadFile(const char *Filename, bool *Success) {
+  char *FileContents;
+  HANDLE vertFile = CreateFile(Filename, GENERIC_READ, 0, NULL, OPEN_EXISTING,
+                               FILE_ATTRIBUTE_NORMAL, NULL);
+
+  if (vertFile == INVALID_HANDLE_VALUE) {
+    DWORD err = GetLastError();
+    printf("Invalid file handle: %lu\n", err);
+    *Success = false;
+    return NULL;
+  }
+  LARGE_INTEGER FileSize;
+  if (GetFileSizeEx(vertFile, &FileSize)) {
+    SIZE_T RealFileSize = (SIZE_T)FileSize.QuadPart;
+    FileContents = (char *)VirtualAlloc(
+        0, RealFileSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+    if (FileContents) {
+      DWORD BytesRead;
+
+      if (FALSE ==
+          ReadFile(vertFile, FileContents, RealFileSize, &BytesRead, NULL)) {
+        DWORD err = GetLastError();
+        printf("Error reading file: %lu\n", err);
+        CloseHandle(vertFile);
+        *Success = false;
+        return NULL;
+      }
+    }
+  }
+
+  CloseHandle(vertFile);
+  *Success = true;
+  return FileContents;
+}
+
+void PrintCWD() {
+  char dirBuf[256] = {0};
+  GetCurrentDirectory(256 - 1, (LPTSTR)&dirBuf);
+  printf("Current dir: %s\n", (LPTSTR)dirBuf);
+}
 
 int run() {
+  bool LoadWorked;
+
+  char *VertexShader = LoadFile("test.vert", &LoadWorked);
+  if (!LoadWorked && VertexShader) {
+    printf("Failed to open vertex shader!\n");
+    return 1;
+  }
+
+  char *FragmentShader = LoadFile("test.frag", &LoadWorked);
+  if (!LoadWorked && FragmentShader) {
+    printf("Failed to open fragment shader!\n");
+    return 1;
+  }
+
   if (!glfwInit()) {
     fprintf(stderr, "ERROR: could not start GLFW3\n");
     return 1;
@@ -26,7 +114,7 @@ int run() {
   const GLubyte *renderer = glGetString(GL_RENDERER);
   const GLubyte *version = glGetString(GL_VERSION);
   printf("Renderer: %s\n", renderer);
-  printf("OpenGL version supported: %s", version);
+  printf("OpenGL version supported: %s\n", version);
 
   // tell GL to only draw onto a pixel if the shape is closer to the viewer
   glEnable(GL_DEPTH_TEST); // enable depth testing
@@ -46,23 +134,11 @@ int run() {
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
-  const char *vertex_shader = "#version 410\n"
-                              "in vec3 vp;"
-                              "void main() {"
-                              "  gl_Position = vec4(vp, 1.0);"
-                              "}";
-
-  const char *fragment_shader = "#version 410\n"
-                                "out vec4 frag_color;"
-                                "void main() {"
-                                "  frag_color = vec4(0.5, 0.0, 0.5, 1.0);"
-                                "}";
-
   GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vs, 1, &vertex_shader, NULL);
+  glShaderSource(vs, 1, &VertexShader, NULL);
   glCompileShader(vs);
   GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fs, 1, &fragment_shader, NULL);
+  glShaderSource(fs, 1, &FragmentShader, NULL);
   glCompileShader(fs);
 
   GLuint shader_programme = glCreateProgram();
@@ -103,3 +179,8 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                      LPSTR lpCmdLine, int nCmdShow) {
   return run();
 }
+
+// Local Variables:
+// compile-command: "build.bat"
+// compilation-read-command: nil
+// End:
