@@ -141,6 +141,13 @@ int run() {
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
+  GLuint vao2 = 0;
+  glGenVertexArrays(1, &vao2);
+  glBindVertexArray(vao2);
+  glEnableVertexAttribArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
   GLuint vs = glCreateShader(GL_VERTEX_SHADER);
   glShaderSource(vs, 1, &VertexShader, NULL);
   glCompileShader(vs);
@@ -161,6 +168,8 @@ int run() {
     glBindVertexArray(vao);
     // draw points 0-3 from the currently bound VAO with current in-use shader
     glDrawArrays(GL_TRIANGLES, 0, 3);
+
+    glBindVertexArray(vao2);
     glDrawArrays(GL_TRIANGLES, 3, 6);
     // update other events like input handling
     glfwPollEvents();
