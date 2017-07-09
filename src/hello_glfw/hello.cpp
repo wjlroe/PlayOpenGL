@@ -155,6 +155,7 @@ int run() {
 
   while (!glfwWindowShouldClose(window)) {
     // wipe the drawing surface clear
+    glClearColor(0.6f, 0.6f, 0.8f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(shader_programme);
     glBindVertexArray(vao);
