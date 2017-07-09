@@ -120,7 +120,14 @@ int run() {
   glEnable(GL_DEPTH_TEST); // enable depth testing
   glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
 
-  GLfloat points[] = {0.0f, 0.5f, 0.0f, 0.5f, -0.5f, 0.0f, -0.5f, -0.5f, 0.0f};
+  // clang-format off
+  GLfloat points[] = {00.0f, 01.0f, 00.0f,
+                      00.5f, 00.0f, 00.0f,
+                      -0.5f, 00.0f, 00.0f,
+                      -0.5f, 00.0f, 00.0f,
+                      00.5f, 00.0f, 00.0f,
+                      00.0f, -1.0f, 00.0f};
+  // clang-format on
 
   GLuint vbo = 0;
   glGenBuffers(1, &vbo);
@@ -153,6 +160,7 @@ int run() {
     glBindVertexArray(vao);
     // draw points 0-3 from the currently bound VAO with current in-use shader
     glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLES, 3, 6);
     // update other events like input handling
     glfwPollEvents();
     // put the stuff we've been drawing onto the display
