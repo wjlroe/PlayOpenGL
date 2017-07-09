@@ -93,6 +93,12 @@ int run() {
     return 1;
   }
 
+  char *FragmentShader2 = LoadFile("test2.frag", &LoadWorked);
+  if (!LoadWorked && FragmentShader2) {
+    printf("Failed to open fragment shader 2!\n");
+    return 1;
+  }
+
   if (!glfwInit()) {
     fprintf(stderr, "ERROR: could not start GLFW3\n");
     return 1;
@@ -155,10 +161,19 @@ int run() {
   glShaderSource(fs, 1, &FragmentShader, NULL);
   glCompileShader(fs);
 
+  GLuint fs2 = glCreateShader(GL_FRAGMENT_SHADER);
+  glShaderSource(fs2, 1, &FragmentShader2, NULL);
+  glCompileShader(fs2);
+
   GLuint shader_programme = glCreateProgram();
   glAttachShader(shader_programme, fs);
   glAttachShader(shader_programme, vs);
   glLinkProgram(shader_programme);
+
+  GLuint ShaderProgramme2 = glCreateProgram();
+  glAttachShader(ShaderProgramme2, fs2);
+  glAttachShader(ShaderProgramme2, vs);
+  glLinkProgram(ShaderProgramme2);
 
   while (!glfwWindowShouldClose(window)) {
     // wipe the drawing surface clear
@@ -169,6 +184,7 @@ int run() {
     // draw points 0-3 from the currently bound VAO with current in-use shader
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
+    glUseProgram(ShaderProgramme2);
     glBindVertexArray(vao2);
     glDrawArrays(GL_TRIANGLES, 3, 6);
     // update other events like input handling
