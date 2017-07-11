@@ -1,2 +1,6 @@
 cmd /c build.bat
-cmd /c run.bat
+
+if ($LastExitCode -eq 0)
+{
+    cmd /c run.bat
+}
