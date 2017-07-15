@@ -6,10 +6,10 @@ echo %time%
 call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64
 echo %time%
 
-set GLEW_INCLUDE_PATH="C:\Users\micro\Downloads\glew-2.0.0-win32\glew-2.0.0\include"
-set GLEW_LIB_PATH="C:\Users\micro\Downloads\glew-2.0.0-win32\glew-2.0.0\lib\Release\x64"
-set GLFW_INCLUDE_PATH="C:\Users\micro\Downloads\glfw-3.2.1.bin.WIN64\glfw-3.2.1.bin.WIN64\include"
-set GLFW_LIB_PATH="C:\Users\micro\Downloads\glfw-3.2.1.bin.WIN64\glfw-3.2.1.bin.WIN64\lib-vc2015"
+set GLEW_INCLUDE_PATH="%USERPROFILE%\Downloads\glew-2.0.0-win32\glew-2.0.0\include"
+set GLEW_LIB_PATH="%USERPROFILE%\Downloads\glew-2.0.0-win32\glew-2.0.0\lib\Release\x64"
+set GLFW_INCLUDE_PATH="%USERPROFILE%\Downloads\glfw-3.2.1.bin.WIN64\glfw-3.2.1.bin.WIN64\include"
+set GLFW_LIB_PATH="%USERPROFILE%\Downloads\glfw-3.2.1.bin.WIN64\glfw-3.2.1.bin.WIN64\lib-vc2015"
 
 IF NOT EXIST build mkdir build
 pushd build
