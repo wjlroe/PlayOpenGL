@@ -9,6 +9,9 @@
 #include <strsafe.h>
 #include <windows.h>
 
+static int g_gl_width = 640;
+static int g_gl_height = 480;
+
 bool RestartGLLog() {
   FILE *File = fopen(GL_LOG_FILE, "w");
   if (!File) {
@@ -134,6 +137,11 @@ void PrintCWD() {
   printf("Current dir: %s\n", (LPTSTR)dirBuf);
 }
 
+void glfwWindowSizeCallback(GLFWwindow *Window, int Width, int Height) {
+  g_gl_width = Width;
+  g_gl_height = Height;
+}
+
 int run() {
   bool LoadWorked;
 
@@ -173,7 +181,9 @@ int run() {
     return 1;
   }
 
+  glfwSetWindowSizeCallback(Window, glfwWindowSizeCallback);
   glfwMakeContextCurrent(Window);
+
   // start FLEW extension handler
   glewExperimental = GL_TRUE;
   glewInit();
@@ -241,6 +251,7 @@ int run() {
     // wipe the drawing surface clear
     glClearColor(0.6f, 0.6f, 0.8f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glViewport(0, 0, g_gl_width, g_gl_height);
     glUseProgram(shader_programme);
     glBindVertexArray(vao);
     // draw points 0-3 from the currently bound VAO with current in-use shader
