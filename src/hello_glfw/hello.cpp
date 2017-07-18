@@ -164,6 +164,8 @@ int run() {
     return 1;
   }
 
+  glfwWindowHint(GLFW_SAMPLES, 4);
+
   GLFWwindow *Window = glfwCreateWindow(640, 480, "Hello Triangle", NULL, NULL);
   if (!Window) {
     fprintf(stderr, "ERROR: count not open window with GLFW3\n");
