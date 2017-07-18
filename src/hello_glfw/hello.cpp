@@ -265,10 +265,11 @@ int run() {
     glUseProgram(ShaderProgramme2);
     glBindVertexArray(vao2);
     glDrawArrays(GL_TRIANGLES, 3, 6);
-    // update other events like input handling
-    glfwPollEvents();
     // put the stuff we've been drawing onto the display
     glfwSwapBuffers(Window);
+
+    // update other events like input handling
+    glfwPollEvents();
 
     if (GLFW_PRESS == glfwGetKey(Window, GLFW_KEY_Q)) {
       glfwSetWindowShouldClose(Window, 1);
