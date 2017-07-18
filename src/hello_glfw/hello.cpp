@@ -64,6 +64,53 @@ void glfwErrorCallback(int Error, const char *Description) {
   glLogErr("GLFW ERROR: code %i msg: %s\n", Error, Description);
 }
 
+void LogGLParams() {
+  // FIXME: All these are zero on the Surface?!?
+  GLenum Params[] = {
+      GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,
+      GL_MAX_CUBE_MAP_TEXTURE_SIZE,
+      GL_MAX_DRAW_BUFFERS,
+      GL_MAX_FRAGMENT_UNIFORM_COMPONENTS,
+      GL_MAX_TEXTURE_IMAGE_UNITS,
+      GL_MAX_TEXTURE_SIZE,
+      GL_MAX_VARYING_FLOATS,
+      GL_MAX_VERTEX_ATTRIBS,
+      GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS,
+      GL_MAX_VERTEX_UNIFORM_COMPONENTS,
+      GL_MAX_VIEWPORT_DIMS,
+      GL_STEREO,
+  };
+  const char *Names[] = {
+      "GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS",
+      "GL_MAX_CUBE_MAP_TEXTURE_SIZE",
+      "GL_MAX_DRAW_BUFFERS",
+      "GL_MAX_FRAGMENT_UNIFORM_COMPONENTS",
+      "GL_MAX_TEXTURE_IMAGE_UNITS",
+      "GL_MAX_TEXTURE_SIZE",
+      "GL_MAX_VARYING_FLOATS",
+      "GL_MAX_VERTEX_ATTRIBS",
+      "GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS",
+      "GL_MAX_VERTEX_UNIFORM_COMPONENTS",
+      "GL_MAX_VIEWPORT_DIMS",
+      "GL_STEREO",
+  };
+  glLog("GL Context Params:\n");
+  for (int i = 0; i < 10; i++) {
+    int v = 0;
+    glGetIntegerv(Params[i], &v);
+    glLog("%s %i\n", Names[i], v);
+  }
+
+  int v[2];
+  v[0] = v[1] = 0;
+  glGetIntegerv(Params[10], v);
+  glLog("%s %i %i\n", Names[10], v[0], v[1]);
+  unsigned char s = 0;
+  glGetBooleanv(Params[11], &s);
+  glLog("%s %u\n", Names[11], (unsigned int)s);
+  glLog("------------------------\n");
+}
+
 #if 0
 void ErrorExit(const char *lpszFunction) {
   // Retrieve the system error message for the last-error code
@@ -186,6 +233,7 @@ int run() {
     return 1;
   }
 
+  LogGLParams();
   glfwSetWindowSizeCallback(Window, glfwWindowSizeCallback);
   glfwMakeContextCurrent(Window);
 
