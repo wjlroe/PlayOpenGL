@@ -189,6 +189,22 @@ void glfwWindowSizeCallback(GLFWwindow *Window, int Width, int Height) {
   g_gl_height = Height;
 }
 
+void UpdateFPSCounter(GLFWwindow *Window) {
+  static double PreviousSeconds = 0;
+  static int FrameCount = 0;
+  double CurrentSeconds = glfwGetTime();
+  double ElapsedSeconds = CurrentSeconds - PreviousSeconds;
+  if (ElapsedSeconds > 0.25) {
+    PreviousSeconds = CurrentSeconds;
+    char tmp[128];
+    double fps = (double)FrameCount / ElapsedSeconds;
+    sprintf(tmp, "opengl @ fps: %.2f", fps);
+    glfwSetWindowTitle(Window, tmp);
+    FrameCount = 0;
+  }
+  FrameCount++;
+}
+
 int run() {
   bool LoadWorked;
 
@@ -301,7 +317,7 @@ int run() {
   glLinkProgram(ShaderProgramme2);
 
   while (!glfwWindowShouldClose(Window)) {
-    // wipe the drawing surface clear
+    UpdateFPSCounter(Window);
     glClearColor(0.6f, 0.6f, 0.8f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, g_gl_width, g_gl_height);
