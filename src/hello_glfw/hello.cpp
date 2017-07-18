@@ -164,14 +164,14 @@ int run() {
     return 1;
   }
 
-  GLFWwindow *window = glfwCreateWindow(640, 480, "Hello Triangle", NULL, NULL);
-  if (!window) {
+  GLFWwindow *Window = glfwCreateWindow(640, 480, "Hello Triangle", NULL, NULL);
+  if (!Window) {
     fprintf(stderr, "ERROR: count not open window with GLFW3\n");
     glfwTerminate();
     return 1;
   }
-  glfwMakeContextCurrent(window);
 
+  glfwMakeContextCurrent(Window);
   // start FLEW extension handler
   glewExperimental = GL_TRUE;
   glewInit();
@@ -235,7 +235,7 @@ int run() {
   glAttachShader(ShaderProgramme2, vs);
   glLinkProgram(ShaderProgramme2);
 
-  while (!glfwWindowShouldClose(window)) {
+  while (!glfwWindowShouldClose(Window)) {
     // wipe the drawing surface clear
     glClearColor(0.6f, 0.6f, 0.8f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -250,7 +250,7 @@ int run() {
     // update other events like input handling
     glfwPollEvents();
     // put the stuff we've been drawing onto the display
-    glfwSwapBuffers(window);
+    glfwSwapBuffers(Window);
   }
 
   // close GL context and any other GLFW resources
