@@ -174,6 +174,11 @@ int run() {
 
   glfwWindowHint(GLFW_SAMPLES, 4);
 
+  // GLFWmonitor *Monitor = glfwGetPrimaryMonitor();
+  // const GLFWvidmode *VMode = glfwGetVideoMode(Monitor);
+  // GLFWwindow *Window = glfwCreateWindow(VMode->width, VMode->height,
+  //                                       "Extended GL Init", Monitor, NULL);
+
   GLFWwindow *Window = glfwCreateWindow(640, 480, "Hello Triangle", NULL, NULL);
   if (!Window) {
     fprintf(stderr, "ERROR: count not open window with GLFW3\n");
