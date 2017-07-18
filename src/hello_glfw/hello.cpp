@@ -253,6 +253,10 @@ int run() {
     glfwPollEvents();
     // put the stuff we've been drawing onto the display
     glfwSwapBuffers(Window);
+
+    if (GLFW_PRESS == glfwGetKey(Window, GLFW_KEY_Q)) {
+      glfwSetWindowShouldClose(Window, 1);
+    }
   }
 
   // close GL context and any other GLFW resources
