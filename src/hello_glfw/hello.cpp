@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdarg.h>
 #include <time.h>
 #define GL_LOG_FILE "gl.log"
@@ -23,7 +24,7 @@ bool RestartGLLog() {
   return true;
 }
 
-bool GLLog(const char *Message, ...) {
+bool glLog(const char *Message, ...) {
   va_list ArgPtr;
   FILE *File = fopen(GL_LOG_FILE, "a");
   if (!File) {
@@ -36,6 +37,28 @@ bool GLLog(const char *Message, ...) {
   va_end(ArgPtr);
   fclose(File);
   return true;
+}
+
+bool glLogErr(const char *Message, ...) {
+  va_list ArgPtr;
+  FILE *File = fopen(GL_LOG_FILE, "a");
+  if (!File) {
+    fprintf(stderr, "ERROR: could not open GL_LOG_FILE %s file for appending\n",
+            GL_LOG_FILE);
+    return false;
+  }
+  va_start(ArgPtr, Message);
+  vfprintf(File, Message, ArgPtr);
+  va_end(ArgPtr);
+  va_start(ArgPtr, Message);
+  vfprintf(stderr, Message, ArgPtr);
+  va_end(ArgPtr);
+  fclose(File);
+  return true;
+}
+
+void glfwErrorCallback(int Error, const char *Description) {
+  glLogErr("GLFW ERROR: code %i msg: %s\n", Error, Description);
 }
 
 #if 0
@@ -131,6 +154,10 @@ int run() {
     printf("Failed to open fragment shader 2!\n");
     return 1;
   }
+
+  assert(RestartGLLog());
+  glLog("starting GLFW\n%s\n", glfwGetVersionString());
+  glfwSetErrorCallback(glfwErrorCallback);
 
   if (!glfwInit()) {
     fprintf(stderr, "ERROR: could not start GLFW3\n");
