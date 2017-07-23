@@ -427,6 +427,12 @@ int run() {
                        0.8f, 0.2f, 0.2f,
                        0.2f, 0.8f, 0.2f,
                        0.2f, 0.2f, 0.8f};
+  float matrix[] = {
+      1.0f, 0.0f, 0.0f, 0.0f,
+      0.0f, 1.0f, 0.0f, 0.0f,
+      0.0f, 0.0f, 1.0f, 0.0f,
+      0.5f, 0.0f, 0.0f, 1.0f
+  };
   // clang-format on
 
   GLuint points_vbo = 0;
@@ -491,6 +497,9 @@ int run() {
   if (!ProgrammeIsValid(shader_programme)) {
     return false;
   }
+  int MatrixLocation = glGetUniformLocation(shader_programme, "matrix");
+  glUseProgram(shader_programme);
+  glUniformMatrix4fv(MatrixLocation, 1, GL_FALSE, matrix);
 
   GLuint ShaderProgramme2 = glCreateProgram();
   glAttachShader(ShaderProgramme2, fs2);
@@ -503,6 +512,9 @@ int run() {
   if (!ProgrammeIsValid(ShaderProgramme2)) {
     return false;
   }
+  MatrixLocation = glGetUniformLocation(ShaderProgramme2, "matrix");
+  glUseProgram(ShaderProgramme2);
+  glUniformMatrix4fv(MatrixLocation, 1, GL_FALSE, matrix);
 
   while (!glfwWindowShouldClose(Window)) {
     UpdateFPSCounter(Window);
