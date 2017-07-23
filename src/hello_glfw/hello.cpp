@@ -312,6 +312,11 @@ int run() {
   glAttachShader(shader_programme, vs);
   glLinkProgram(shader_programme);
 
+  GLint color_loc = glGetUniformLocation(shader_programme, "input_colour");
+  assert(color_loc > -1);
+  glUseProgram(shader_programme);
+  glUniform4f(color_loc, 0.7f, 0.1f, 0.2f, 1.0f);
+
   GLuint ShaderProgramme2 = glCreateProgram();
   glAttachShader(ShaderProgramme2, fs2);
   glAttachShader(ShaderProgramme2, vs);
