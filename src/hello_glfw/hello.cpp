@@ -205,6 +205,152 @@ void UpdateFPSCounter(GLFWwindow *Window) {
   FrameCount++;
 }
 
+const char *glTypeToString(GLenum Type) {
+  switch (Type) {
+  case GL_BOOL:
+    return "bool";
+  case GL_INT:
+    return "int";
+  case GL_FLOAT:
+    return "float";
+  case GL_FLOAT_VEC2:
+    return "vec2";
+  case GL_FLOAT_VEC3:
+    return "vec3";
+  case GL_FLOAT_VEC4:
+    return "vec4";
+  case GL_FLOAT_MAT2:
+    return "mat2";
+  case GL_FLOAT_MAT3:
+    return "mat3";
+  case GL_FLOAT_MAT4:
+    return "mat4";
+  case GL_SAMPLER_2D:
+    return "sampler2D";
+  case GL_SAMPLER_3D:
+    return "sampler3D";
+  case GL_SAMPLER_CUBE:
+    return "samplerCube";
+  case GL_SAMPLER_2D_SHADOW:
+    return "sampler2DShadow";
+  default:
+    break;
+  }
+  return "other";
+}
+
+void PrintProgrammeInfoLog(GLuint ProgrammeIndex) {
+  int MaxLength = 2048;
+  int ActualLength = 0;
+  char log[2048];
+  glGetProgramInfoLog(ProgrammeIndex, MaxLength, &ActualLength, log);
+  printf("program info log for GL index: %u\n%s", ProgrammeIndex, log);
+}
+
+void PrintAll(GLuint Programme) {
+  printf("--------------------\nshader programme %u info:\n", Programme);
+  int Params = -1;
+  glGetProgramiv(Programme, GL_LINK_STATUS, &Params);
+  printf("GL_LINK_STATUS = %i\n", Params);
+  glGetProgramiv(Programme, GL_ATTACHED_SHADERS, &Params);
+  printf("GL_ATTACHED_SHADERS = %i\n", Params);
+
+  glGetProgramiv(Programme, GL_ACTIVE_ATTRIBUTES, &Params);
+  printf("GL_ACTIVE_ATTRIBUTES = %i\n", Params);
+  for (GLuint i = 0; i < (GLuint)Params; i++) {
+    char Name[64];
+    int MaxLength = 64;
+    int ActualLength = 0;
+    int Size = 0;
+    GLenum Type;
+    glGetActiveAttrib(Programme, i, MaxLength, &ActualLength, &Size, &Type,
+                      Name);
+    if (Size > 1) {
+      for (int j = 0; j < Size; j++) {
+        char LongName[64];
+        sprintf(LongName, "%s[%i]", Name, j);
+        int Location = glGetAttribLocation(Programme, LongName);
+        printf("  %i) Type:%s Name:%s Location:%i\n", i, glTypeToString(Type),
+               LongName, Location);
+      }
+    } else {
+      int Location = glGetAttribLocation(Programme, Name);
+      printf("  %i) Type: %s Name:%s Location:%i\n", i, glTypeToString(Type),
+             Name, Location);
+    }
+  }
+
+  glGetProgramiv(Programme, GL_ACTIVE_UNIFORMS, &Params);
+  printf("GL_ACTIVE_UNIFORMS = %i\n", Params);
+  for (GLuint i = 0; i < (GLuint)Params; i++) {
+    char Name[64];
+    int MaxLength = 64;
+    int ActualLength = 0;
+    int Size = 0;
+    GLenum Type;
+    glGetActiveUniform(Programme, i, MaxLength, &ActualLength, &Size, &Type,
+                       Name);
+    if (Size > 1) {
+      for (int j = 0; j < Size; j++) {
+        char LongName[64];
+        sprintf(LongName, "%s[%i]", Name, j);
+        int Location = glGetUniformLocation(Programme, LongName);
+        printf("  %i) Type:%s Name:%s Location:%i\n", i, glTypeToString(Type),
+               LongName, Location);
+      }
+    } else {
+      int Location = glGetUniformLocation(Programme, Name);
+      printf("  %i) Type:%s Name:%s Location:%i\n", i, glTypeToString(Type),
+             Name, Location);
+    }
+  }
+
+  PrintProgrammeInfoLog(Programme);
+}
+
+bool ProgrammeIsValid(GLuint Programme) {
+  glValidateProgram(Programme);
+  int Params = -1;
+  glGetProgramiv(Programme, GL_VALIDATE_STATUS, &Params);
+  printf("program %i GL_VALIDATE_STATUS = %i\n", Programme, Params);
+  if (GL_TRUE != Params) {
+    PrintProgrammeInfoLog(Programme);
+    return false;
+  }
+  return true;
+}
+
+void PrintShaderInfoLog(GLuint ShaderIndex) {
+  int MaxLength = 2048;
+  int ActualLength = 0;
+  char log[2048];
+  glGetShaderInfoLog(ShaderIndex, MaxLength, &ActualLength, log);
+  printf("Shader info log for GL index %u:\n%s\n", ShaderIndex, log);
+}
+
+bool CheckForShaderErrors(GLuint ShaderIndex) {
+  int Params = -1;
+  glGetShaderiv(ShaderIndex, GL_COMPILE_STATUS, &Params);
+  if (GL_TRUE != Params) {
+    fprintf(stderr, "ERROR: GL shader index %i did not compile\n", ShaderIndex);
+    PrintShaderInfoLog(ShaderIndex);
+    return false;
+  }
+  return true;
+}
+
+bool CheckForLinkingErrors(GLuint ProgrammeIndex) {
+  int Params = -1;
+  glGetProgramiv(ProgrammeIndex, GL_LINK_STATUS, &Params);
+  if (GL_TRUE != Params) {
+    fprintf(stderr, "ERROR: could not link shader programme GL index: %u\n",
+            ProgrammeIndex);
+    PrintProgrammeInfoLog(ProgrammeIndex);
+    return false;
+  }
+  return true;
+}
+
 int run() {
   bool LoadWorked;
 
@@ -299,18 +445,35 @@ int run() {
   GLuint vs = glCreateShader(GL_VERTEX_SHADER);
   glShaderSource(vs, 1, &VertexShader, NULL);
   glCompileShader(vs);
+  if (!CheckForShaderErrors(vs)) {
+    return false;
+  }
   GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
   glShaderSource(fs, 1, &FragmentShader, NULL);
   glCompileShader(fs);
+  if (!CheckForShaderErrors(vs)) {
+    return false;
+  }
 
   GLuint fs2 = glCreateShader(GL_FRAGMENT_SHADER);
   glShaderSource(fs2, 1, &FragmentShader2, NULL);
   glCompileShader(fs2);
+  if (!CheckForShaderErrors(vs)) {
+    return false;
+  }
 
   GLuint shader_programme = glCreateProgram();
   glAttachShader(shader_programme, fs);
   glAttachShader(shader_programme, vs);
   glLinkProgram(shader_programme);
+  if (!CheckForLinkingErrors(shader_programme)) {
+    return false;
+  }
+  PrintAll(shader_programme);
+  // FIXME : only do this in development
+  if (!ProgrammeIsValid(shader_programme)) {
+    return false;
+  }
 
   GLint color_loc = glGetUniformLocation(shader_programme, "input_colour");
   assert(color_loc > -1);
@@ -321,6 +484,13 @@ int run() {
   glAttachShader(ShaderProgramme2, fs2);
   glAttachShader(ShaderProgramme2, vs);
   glLinkProgram(ShaderProgramme2);
+  if (!CheckForLinkingErrors(ShaderProgramme2)) {
+    return false;
+  }
+  PrintAll(ShaderProgramme2);
+  if (!ProgrammeIsValid(ShaderProgramme2)) {
+    return false;
+  }
 
   while (!glfwWindowShouldClose(Window)) {
     UpdateFPSCounter(Window);
