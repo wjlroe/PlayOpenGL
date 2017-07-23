@@ -511,11 +511,17 @@ int run() {
     glViewport(0, 0, g_gl_width, g_gl_height);
     glUseProgram(shader_programme);
     glBindVertexArray(vao);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CW);
     // draw points 0-3 from the currently bound VAO with current in-use shader
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     glUseProgram(ShaderProgramme2);
     glBindVertexArray(vao2);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CW);
     glDrawArrays(GL_TRIANGLES, 3, 6);
     // put the stuff we've been drawing onto the display
     glfwSwapBuffers(Window);
