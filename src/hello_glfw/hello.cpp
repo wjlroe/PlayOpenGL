@@ -421,26 +421,43 @@ int run() {
                       -0.5f, 00.0f, 00.0f,
                       00.5f, 00.0f, 00.0f,
                       00.0f, -1.0f, 00.0f};
+  GLfloat colours[] = {1.0f, 0.0f, 0.0f,
+                       0.0f, 1.0f, 0.0f,
+                       0.0f, 0.0f, 1.0f,
+                       0.8f, 0.2f, 0.2f,
+                       0.2f, 0.8f, 0.2f,
+                       0.2f, 0.2f, 0.8f};
   // clang-format on
 
-  GLuint vbo = 0;
-  glGenBuffers(1, &vbo);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  GLuint points_vbo = 0;
+  glGenBuffers(1, &points_vbo);
+  glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
   glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
+
+  GLuint colours_vbo = 0;
+  glGenBuffers(1, &colours_vbo);
+  glBindBuffer(GL_ARRAY_BUFFER, colours_vbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(colours), colours, GL_STATIC_DRAW);
 
   GLuint vao = 0;
   glGenVertexArrays(1, &vao);
   glBindVertexArray(vao);
   glEnableVertexAttribArray(0);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+  glEnableVertexAttribArray(1);
+  glBindBuffer(GL_ARRAY_BUFFER, colours_vbo);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
   GLuint vao2 = 0;
   glGenVertexArrays(1, &vao2);
   glBindVertexArray(vao2);
   glEnableVertexAttribArray(0);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+  glEnableVertexAttribArray(1);
+  glBindBuffer(GL_ARRAY_BUFFER, colours_vbo);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
   GLuint vs = glCreateShader(GL_VERTEX_SHADER);
   glShaderSource(vs, 1, &VertexShader, NULL);
@@ -474,11 +491,6 @@ int run() {
   if (!ProgrammeIsValid(shader_programme)) {
     return false;
   }
-
-  GLint color_loc = glGetUniformLocation(shader_programme, "input_colour");
-  assert(color_loc > -1);
-  glUseProgram(shader_programme);
-  glUniform4f(color_loc, 0.7f, 0.1f, 0.2f, 1.0f);
 
   GLuint ShaderProgramme2 = glCreateProgram();
   glAttachShader(ShaderProgramme2, fs2);
