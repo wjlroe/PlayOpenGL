@@ -249,7 +249,6 @@ int run() {
     return 1;
   }
 
-  LogGLParams();
   glfwSetWindowSizeCallback(Window, glfwWindowSizeCallback);
   glfwMakeContextCurrent(Window);
 
@@ -262,6 +261,8 @@ int run() {
   const GLubyte *version = glGetString(GL_VERSION);
   printf("Renderer: %s\n", renderer);
   printf("OpenGL version supported: %s\n", version);
+  glLog("renderer: %s\nversion: %s\n", renderer, version);
+  LogGLParams();
 
   // tell GL to only draw onto a pixel if the shape is closer to the viewer
   glEnable(GL_DEPTH_TEST); // enable depth testing
