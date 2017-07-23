@@ -5,6 +5,7 @@
 #include <GL/glew.h>
 #define GLFW_DLL
 #include <GLFW/glfw3.h>
+#include <math.h>
 #include <stdio.h>
 #include <strsafe.h>
 #include <windows.h>
@@ -516,7 +517,23 @@ int run() {
   glUseProgram(ShaderProgramme2);
   glUniformMatrix4fv(MatrixLocation, 1, GL_FALSE, matrix);
 
+  float Speed = 1.0f;
+  float LastPosition = 0.0f;
   while (!glfwWindowShouldClose(Window)) {
+    static double PreviousSeconds = glfwGetTime();
+    double CurrentSeconds = glfwGetTime();
+    double ElapsedSeconds = CurrentSeconds - PreviousSeconds;
+    PreviousSeconds = CurrentSeconds;
+    if (fabs(LastPosition) > 1.0f) {
+      Speed = -Speed;
+    }
+    matrix[12] = ElapsedSeconds * Speed + LastPosition;
+    LastPosition = matrix[12];
+    glUseProgram(shader_programme);
+    glUniformMatrix4fv(MatrixLocation, 1, GL_FALSE, matrix);
+    glUseProgram(ShaderProgramme2);
+    glUniformMatrix4fv(MatrixLocation, 1, GL_FALSE, matrix);
+
     UpdateFPSCounter(Window);
     glClearColor(0.6f, 0.6f, 0.8f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
