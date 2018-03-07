@@ -3,7 +3,9 @@
 SET /A errno=0
 
 echo time now: %time%
-call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64
+set PROJECT_DIR=%~dp0
+call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
+cd %PROJECT_DIR%
 echo time now: %time%
 
 set GLEW_INCLUDE_PATH="%USERPROFILE%\Downloads\glew-2.0.0-win32\glew-2.0.0\include"
