@@ -66,7 +66,6 @@ void glfwErrorCallback(int Error, const char *Description) {
 }
 
 void LogGLParams() {
-  // FIXME: All these are zero on the Surface?!?
   GLenum Params[] = {
       GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,
       GL_MAX_CUBE_MAP_TEXTURE_SIZE,
