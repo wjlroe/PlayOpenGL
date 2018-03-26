@@ -517,17 +517,21 @@ int run() {
   glUseProgram(ShaderProgramme2);
   glUniformMatrix4fv(MatrixLocation, 1, GL_FALSE, matrix);
 
-  float Speed = 1.0f;
+  float TriangleSpeed = 0.0f;
   float LastPosition = 0.0f;
+  float CamSpeed = 1.0f;
+  float CamYawSpeed = 10.0f; // 10 degrees per second
+  float CamPos[] = {0.0f, 0.0f, 2.0f};
+  float CamYaw = 0.0f;
   while (!glfwWindowShouldClose(Window)) {
     static double PreviousSeconds = glfwGetTime();
     double CurrentSeconds = glfwGetTime();
     double ElapsedSeconds = CurrentSeconds - PreviousSeconds;
     PreviousSeconds = CurrentSeconds;
     if (fabs(LastPosition) > 1.0f) {
-      Speed = -Speed;
+      TriangleSpeed = -TriangleSpeed;
     }
-    matrix[12] = ElapsedSeconds * Speed + LastPosition;
+    matrix[12] = ElapsedSeconds * TriangleSpeed + LastPosition;
     LastPosition = matrix[12];
     glUseProgram(shader_programme);
     glUniformMatrix4fv(MatrixLocation, 1, GL_FALSE, matrix);
