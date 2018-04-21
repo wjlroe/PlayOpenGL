@@ -427,6 +427,8 @@ int run() {
                        0.8f, 0.2f, 0.2f,
                        0.2f, 0.8f, 0.2f,
                        0.2f, 0.2f, 0.8f};
+  // TODO: Isn't this in row-major order but we're telling OpenGL not to
+  // transpose it?
   float matrix[] = {
       1.0f, 0.0f, 0.0f, 0.0f,
       0.0f, 1.0f, 0.0f, 0.0f,
@@ -538,8 +540,12 @@ int run() {
     glUniformMatrix4fv(MatrixLocation, 1, GL_FALSE, matrix);
 
     UpdateFPSCounter(Window);
-    glClearColor(0.6f, 0.6f, 0.8f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_FRAMEBUFFER_SRGB);
+    //    glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
+    GLfloat v[] = {0.1, 0.2, 0.3, 1.0};
+    glClearBufferfv(GL_COLOR, 0, v);
+    //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, g_gl_width, g_gl_height);
     glUseProgram(shader_programme);
     glBindVertexArray(vao);
