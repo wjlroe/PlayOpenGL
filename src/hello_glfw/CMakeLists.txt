@@ -1,0 +1,21 @@
+project(hello_glfw)
+
+set(CMAKE_PREFIX_PATH "$ENV{USERPROFILE}/Downloads/glew-2.0.0-win32/glew-2.0.0")
+set(CMAKE_LIBRARY_PATH "$ENV{USERPROFILE}/Downloads/glew-2.0.0-win32/glew-2.0.0/lib/Release/x64")
+find_package(GLEW REQUIRED)
+if (GLEW_FOUND)
+    include_directories(${GLEW_INCLUDE_DIRS})
+    link_libraries(${GLEW_LIBRARIES})
+endif()
+
+set(CMAKE_PREFIX_PATH "$ENV{USERPROFILE}/Downloads/glfw-3.2.1.bin.WIN64/glfw-3.2.1.bin.WIN64")
+set(CMAKE_LIBRARY_PATH "$ENV{USERPROFILE}/Downloads/glfw-3.2.1.bin.WIN64/glfw-3.2.1.bin.WIN64/lib-vc2015")
+find_package(glfw3 3.2.1 REQUIRED)
+if (GLFW3_FOUND)
+    include_directories(${GLFW3_INCLUDE_DIRS})
+    link_libraries(${GLFW_LIBRARIES})
+endif()
+
+set(SOURCE_FILES hello.cpp)
+set(RUNTIME_OUTPUT_DIRECTORY build)
+add_executable(hello ${SOURCE_FILES})

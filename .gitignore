@@ -105,3 +105,4 @@ xcuserdata
 
 .idea/
 *.iml
+cmake-build-debug/
