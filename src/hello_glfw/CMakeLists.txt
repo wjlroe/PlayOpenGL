@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.10)
 project(hello_glfw)
 
 set(CMAKE_PREFIX_PATH "$ENV{USERPROFILE}/Downloads/glew-2.0.0-win32/glew-2.0.0")
