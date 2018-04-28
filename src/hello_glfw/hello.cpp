@@ -4,6 +4,7 @@
 #define GL_LOG_FILE "gl.log"
 #include <GL/glew.h>
 #define GLFW_DLL
+#include "maths.cpp"
 #include <GLFW/glfw3.h>
 #include <math.h>
 #include <stdio.h>
@@ -524,6 +525,10 @@ int run() {
   float CamYawSpeed = 10.0f; // 10 degrees per second
   float CamPos[] = {0.0f, 0.0f, 2.0f};
   float CamYaw = 0.0f;
+
+  mat4 T = translate(identity_mat4(), vec3(-CamPos[0], -CamPos[1], -CamPos[2]));
+  T.print();
+
   while (!glfwWindowShouldClose(Window)) {
     static double PreviousSeconds = glfwGetTime();
     double CurrentSeconds = glfwGetTime();
