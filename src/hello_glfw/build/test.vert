@@ -1,13 +1,15 @@
-#version 410
+#version 150 core
 
-layout(location = 0) in vec3 vertex_position;
-layout(location = 1) in vec3 vertex_colour;
+in vec3 vertex_position;
+in vec3 vertex_colour;
 
-uniform mat4 matrix;
+layout(std140);
+uniform mat4 view;
+uniform mat4 proj;
 
 out vec3 colour;
 
 void main() {
-  colour = vertex_colour;
-  gl_Position = matrix * vec4(vertex_position, 1.0);
+    colour = vertex_colour;
+    gl_Position = proj * view * vec4(vertex_position, 1.0);
 };
