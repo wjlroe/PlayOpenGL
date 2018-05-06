@@ -52,6 +52,15 @@ mat4 mat4::operator*(const mat4 &rhs) {
     return mat4(nx, ny, nz, nw);
 }
 
+vec4 mat4::operator*(const vec4 &rhs) {
+    float vx = x.x * rhs.x + x.y * rhs.y + x.z * rhs.z + z.w * rhs.z;
+    // FIXME: this is all wrong below
+    float vy = x.x * rhs.x + x.y * rhs.y + x.z * rhs.z + z.w * rhs.z;
+    float vz = x.x * rhs.x + x.y * rhs.y + x.z * rhs.z + z.w * rhs.z;
+    float vw = x.x * rhs.x + x.y * rhs.y + x.z * rhs.z + z.w * rhs.z;
+    return vec4(vx, vy, vz, vw);
+}
+
 vec4 zero_vec4() { return vec4(0.0f, 0.0f, 0.0f, 0.0f); }
 
 mat4 identity_mat4() {
