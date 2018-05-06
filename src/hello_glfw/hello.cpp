@@ -355,6 +355,22 @@ bool CheckForLinkingErrors(GLuint ProgrammeIndex) {
     return true;
 }
 
+#if 0
+void PointsTimesMatrix(float array[], int size, mat4 matrix) {
+    int num_points = size / 3;
+    vec3 *points = new vec3[num_points];
+    int point_i = 0;
+    for (int i = 0; i < size; i += 3) {
+        points[point_i++] = vec3(array[i], array[i + 1], array[i + 2]);
+    }
+    for (int i = 0; i < num_points; i++) {
+        vec3 point = points[i];
+        vec3 new_point = matrix * point;
+        new_point.print();
+    }
+}
+#endif
+
 void PrintMatrix(float matrix[], int size, int columns) {
     bool first_line = true;
     printf("\n{");
@@ -452,7 +468,7 @@ int run() {
     float LastPosition = 0.0f;
     float CamSpeed = 1.0f;
     float CamYawSpeed = 10.0f;  // 10 degrees per second
-    float CamPos[] = {0.0f, 0.0f, 2.0f};
+    float CamPos[] = {5.0f, 11.0f, 10.0f};
     float CamYaw = 0.0f;
 
     mat4 T =
@@ -473,6 +489,8 @@ int run() {
     ViewMat4.into_array(ViewMatrix);
     printf("\nViewMatrix:");
     PrintMatrix(ViewMatrix, 16, 4);
+
+    // PointsTimesMatrix(points, 18, ViewMatrix);
 
     float Near = 0.1f;
     float Far = 100.0f;
