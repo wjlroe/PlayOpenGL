@@ -415,6 +415,10 @@ int run() {
     }
 
     glfwWindowHint(GLFW_SAMPLES, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // GLFWmonitor *Monitor = glfwGetPrimaryMonitor();
     // const GLFWvidmode *VMode = glfwGetVideoMode(Monitor);
@@ -537,12 +541,14 @@ int run() {
     glShaderSource(vs, 1, &VertexShader, NULL);
     glCompileShader(vs);
     if (!CheckForShaderErrors(vs)) {
+        fprintf(stderr, "ERROR: vertex shader didn't compile\n");
         return false;
     }
     GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fs, 1, &FragmentShader, NULL);
     glCompileShader(fs);
-    if (!CheckForShaderErrors(vs)) {
+    if (!CheckForShaderErrors(fs)) {
+        fprintf(stderr, "ERROR: fragment shader didn't compile\n");
         return false;
     }
 
@@ -580,11 +586,11 @@ int run() {
         glUniformMatrix4fv(ProjMatrixLocation, 1, GL_FALSE, ProjMatrix);
 
         UpdateFPSCounter(Window);
-        glEnable(GL_FRAMEBUFFER_SRGB);
-        //    glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
+        // glEnable(GL_FRAMEBUFFER_SRGB);
+        // glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
         GLfloat v[] = {0.1f, 0.2f, 0.3f, 1.0f};
         glClearBufferfv(GL_COLOR, 0, v);
-        //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClear(GL_DEPTH_BUFFER_BIT);
         glViewport(0, 0, g_gl_width, g_gl_height);
         glUseProgram(shader_programme);

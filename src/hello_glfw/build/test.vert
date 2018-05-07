@@ -2,12 +2,11 @@
 
 in vec3 vertex_position;
 in vec3 vertex_colour;
+out vec3 colour;
 
-layout(std140);
+layout(std140) uniform;
 uniform mat4 view;
 uniform mat4 proj;
-
-out vec3 colour;
 
 void main() {
     colour = vertex_colour;
