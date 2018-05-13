@@ -16,7 +16,7 @@ set GLFW_LIB_PATH="%USERPROFILE%\Downloads\glfw-3.2.1.bin.WIN64\glfw-3.2.1.bin.W
 IF NOT EXIST build mkdir build
 pushd build
 echo time now: %time%
-cl -FC -Zc:strictStrings -Zi -EHsc ..\hello.cpp -I %GLEW_INCLUDE_PATH% -I %GLFW_INCLUDE_PATH% /link %GLEW_LIB_PATH%\glew32.lib %GLFW_LIB_PATH%\glfw3.lib opengl32.lib glu32.lib %GLFW_LIB_PATH%\glfw3dll.lib /SUBSYSTEM:CONSOLE
+cl -FC -Zc:strictStrings -Zi -EHsc ..\hello_win32.cpp -I %GLEW_INCLUDE_PATH% -I %GLFW_INCLUDE_PATH% /link %GLEW_LIB_PATH%\glew32.lib %GLFW_LIB_PATH%\glfw3.lib opengl32.lib glu32.lib %GLFW_LIB_PATH%\glfw3dll.lib /SUBSYSTEM:CONSOLE
 IF %ERRORLEVEL% NEQ 0 SET /A errno=%ERRORLEVEL%
 echo time now: %time%
 popd

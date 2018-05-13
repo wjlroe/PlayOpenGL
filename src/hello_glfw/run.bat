@@ -1,5 +1,5 @@
 @echo off
 
 pushd build
-hello
+hello_win32
 popd

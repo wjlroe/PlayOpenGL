@@ -1,18 +1,7 @@
-#include <assert.h>
-#include <stdarg.h>
-#include <time.h>
-#define GL_LOG_FILE "gl.log"
-#include <GL/glew.h>
-#define GLFW_DLL
-#include <GLFW/glfw3.h>
-#include <math.h>
-#include <stdio.h>
-#include <strsafe.h>
-#include <windows.h>
-#include "maths.cpp"
-
 static int g_gl_width = 640;
 static int g_gl_height = 480;
+
+char *LoadFile(const char *Filename, bool *Success);
 
 bool RestartGLLog() {
     FILE *File = fopen(GL_LOG_FILE, "w");
@@ -116,76 +105,35 @@ void LogGLParams() {
 
 #if 0
 void ErrorExit(const char *lpszFunction) {
-  // Retrieve the system error message for the last-error code
-
-  LPVOID lpMsgBuf;
-  LPVOID lpDisplayBuf;
-  DWORD dw = GetLastError();
-  printf("LastError: %d\n", dw);
-
-  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
-                    FORMAT_MESSAGE_IGNORE_INSERTS,
-                NULL, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                (LPTSTR)&lpMsgBuf, 0, NULL);
-  printf("\nError: %s\n", (LPTSTR)lpMsgBuf);
-
-  // Display the error message and exit the process
-
-  lpDisplayBuf = (LPVOID)LocalAlloc(
-      LMEM_ZEROINIT,
-      (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)lpszFunction) + 40) *
-          sizeof(TCHAR));
-  StringCchPrintf((LPTSTR)lpDisplayBuf, LocalSize(lpDisplayBuf) / sizeof(TCHAR),
-                  TEXT("%s failed with error %d: %s"), lpszFunction, dw,
-                  lpMsgBuf);
-  // MessageBox(NULL, (LPCTSTR)lpDisplayBuf, TEXT("Error"), MB_OK);
-
-  LocalFree(lpMsgBuf);
-  LocalFree(lpDisplayBuf);
-  ExitProcess(dw);
+    // Retrieve the system error message for the last-error code
+    
+    LPVOID lpMsgBuf;
+    LPVOID lpDisplayBuf;
+    DWORD dw = GetLastError();
+    printf("LastError: %d\n", dw);
+    
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
+                  FORMAT_MESSAGE_IGNORE_INSERTS,
+                  NULL, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                  (LPTSTR)&lpMsgBuf, 0, NULL);
+    printf("\nError: %s\n", (LPTSTR)lpMsgBuf);
+    
+    // Display the error message and exit the process
+    
+    lpDisplayBuf = (LPVOID)LocalAlloc(
+        LMEM_ZEROINIT,
+        (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)lpszFunction) + 40) *
+        sizeof(TCHAR));
+    StringCchPrintf((LPTSTR)lpDisplayBuf, LocalSize(lpDisplayBuf) / sizeof(TCHAR),
+                    TEXT("%s failed with error %d: %s"), lpszFunction, dw,
+                    lpMsgBuf);
+    // MessageBox(NULL, (LPCTSTR)lpDisplayBuf, TEXT("Error"), MB_OK);
+    
+    LocalFree(lpMsgBuf);
+    LocalFree(lpDisplayBuf);
+    ExitProcess(dw);
 }
 #endif
-
-char *LoadFile(const char *Filename, bool *Success) {
-    char *FileContents;
-    HANDLE vertFile = CreateFile(Filename, GENERIC_READ, 0, NULL, OPEN_EXISTING,
-                                 FILE_ATTRIBUTE_NORMAL, NULL);
-
-    if (vertFile == INVALID_HANDLE_VALUE) {
-        DWORD err = GetLastError();
-        printf("Invalid file handle: %lu\n", err);
-        *Success = false;
-        return NULL;
-    }
-    LARGE_INTEGER FileSize;
-    if (GetFileSizeEx(vertFile, &FileSize)) {
-        SIZE_T RealFileSize = (SIZE_T)FileSize.QuadPart;
-        FileContents = (char *)VirtualAlloc(
-            0, RealFileSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-        if (FileContents) {
-            DWORD BytesRead;
-
-            if (FALSE == ReadFile(vertFile, FileContents, RealFileSize,
-                                  &BytesRead, NULL)) {
-                DWORD err = GetLastError();
-                printf("Error reading file: %lu\n", err);
-                CloseHandle(vertFile);
-                *Success = false;
-                return NULL;
-            }
-        }
-    }
-
-    CloseHandle(vertFile);
-    *Success = true;
-    return FileContents;
-}
-
-void PrintCWD() {
-    char dirBuf[256] = {0};
-    GetCurrentDirectory(256 - 1, (LPTSTR)&dirBuf);
-    printf("Current dir: %s\n", (LPTSTR)dirBuf);
-}
 
 void glfwWindowSizeCallback(GLFWwindow *Window, int Width, int Height) {
     g_gl_width = Width;
@@ -455,17 +403,17 @@ int run() {
 
     // clang-format off
     GLfloat points[] = {00.0f, 01.0f, 00.0f,
-                        00.5f, 00.0f, 00.0f,
-                        -0.5f, 00.0f, 00.0f,
-                        -0.5f, 00.0f, 00.0f,
-                        00.5f, 00.0f, 00.0f,
-                        00.0f, -1.0f, 00.0f};
+        00.5f, 00.0f, 00.0f,
+        -0.5f, 00.0f, 00.0f,
+        -0.5f, 00.0f, 00.0f,
+        00.5f, 00.0f, 00.0f,
+        00.0f, -1.0f, 00.0f};
     GLfloat colours[] = {1.0f, 0.0f, 0.0f,
-                         0.0f, 1.0f, 0.0f,
-                         0.0f, 0.0f, 1.0f,
-                         0.8f, 0.2f, 0.2f,
-                         0.2f, 0.8f, 0.2f,
-                         0.2f, 0.2f, 0.8f};
+        0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 1.0f,
+        0.8f, 0.2f, 0.2f,
+        0.2f, 0.8f, 0.2f,
+        0.2f, 0.2f, 0.8f};
     // clang-format on
 
     float TriangleSpeed = 0.0f;
@@ -617,23 +565,3 @@ int run() {
     glfwTerminate();
     return 0;
 }
-
-int main() {
-// for macOS?
-#if 0
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#endif
-    return run();
-}
-
-int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                     LPSTR lpCmdLine, int nCmdShow) {
-    return run();
-}
-
-// Local Variables:
-// compilation-read-command: nil
-// End:
