@@ -556,6 +556,19 @@ int run() {
         // update other events like input handling
         glfwPollEvents();
 
+#if 0
+        int FirstJoystickConnected = glfwJoystickPresent(GLFW_JOYSTICK_1);
+        if (FirstJoystickConnected) {
+            const char* name = glfwGetJoystickName(GLFW_JOYSTICK_1);
+
+            int count;
+            const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
+
+            int count;
+            const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &count);
+        }
+#endif
+
         if (GLFW_PRESS == glfwGetKey(Window, GLFW_KEY_Q)) {
             glfwSetWindowShouldClose(Window, 1);
         }
