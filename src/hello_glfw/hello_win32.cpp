@@ -48,7 +48,3 @@ char *LoadFile(const char *Filename, bool *Success) {
 }
 
 int main() { return run(); }
-
-// Local Variables:
-// compilation-read-command: nil
-// End:
