@@ -585,10 +585,7 @@ int run() {
     return 0;
 }
 
-int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                     LPSTR lpCmdLine, int nCmdShow) {
-    return run();
-}
+int main() { return run(); }
 
 // Local Variables:
 // compilation-read-command: nil
