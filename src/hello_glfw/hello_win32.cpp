@@ -9,8 +9,8 @@
 #include <stdio.h>
 #include <strsafe.h>
 #include <windows.h>
-#include "hello.cpp"
 #include "maths.cpp"
+#include "hello.cpp"
 
 void PrintCWD() {
     char dirBuf[256] = {0};
