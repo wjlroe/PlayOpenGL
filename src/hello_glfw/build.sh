@@ -2,13 +2,10 @@
 
 set -e
 
-LINUX_CFLAGS="-lGL -lglfw -lGLEW"
-MACOS_CFLAGS="-I/opt/X11/include `pkg-config --cflags glew glfw3` `pkg-config --libs glew glfw3` -framework OpenGL"
-
 if [ "`uname -s`" == "Darwin" ]; then
-  CFLAGS="$MACOS_CFLAGS"
+  CFLAGS="-I/opt/X11/include `pkg-config --cflags glew glfw3` `pkg-config --libs glew glfw3` -framework OpenGL"
 else
-  CFLAGS="$LINUX_CFLAGS"
+  CFLAGS="-lGL -lglfw -lGLEW"
 fi
 
 
