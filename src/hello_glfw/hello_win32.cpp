@@ -12,12 +12,6 @@
 #include "maths.cpp"
 #include "hello.cpp"
 
-void PrintCWD() {
-    char dirBuf[256] = {0};
-    GetCurrentDirectory(256 - 1, (LPTSTR)&dirBuf);
-    printf("Current dir: %s\n", (LPTSTR)dirBuf);
-}
-
 char *LoadFile(const char *Filename, bool *Success) {
     char *FileContents;
     HANDLE vertFile = CreateFile(Filename, GENERIC_READ, 0, NULL, OPEN_EXISTING,
