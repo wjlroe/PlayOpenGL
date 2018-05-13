@@ -1,2 +1,4 @@
-((c++-mode . ((compile-command . "build_and_run.bat")))
- (c-mode . ((compile-command . "build_and_run.bat"))))
+((nil . ((eval . (progn
+                  (if (eq system-type 'windows-nt)
+                      (setq compile-command  "build_and_run.bat")
+                    (setq compile-command "./build_and_run.sh")))))))
