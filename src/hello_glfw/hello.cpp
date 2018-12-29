@@ -446,7 +446,7 @@ int run() {
 
     float Near = 0.1f;
     float Far = 100.0f;
-    float Fov = 67.0f * ONE_DEG_IN_RAD;
+    float Fov = 67.0f * (float)(ONE_DEG_IN_RAD);
     float Aspect = (float)g_gl_width / (float)g_gl_height;
     float Range = tan(Fov * 0.5f) * Near;
     float Sx = (2.0f * Near) / (Range * Aspect + Range * Aspect);
