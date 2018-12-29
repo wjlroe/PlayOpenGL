@@ -1,16 +1,7 @@
-#include <assert.h>
-#include <stdarg.h>
-#include <time.h>
-#define GL_LOG_FILE "gl.log"
-#include <GL/glew.h>
-#define GLFW_DLL
-#include <GLFW/glfw3.h>
-#include <math.h>
-#include <stdio.h>
+#ifdef _WIN32
 #include <strsafe.h>
 #include <windows.h>
-#include "maths.cpp"
-#include "hello.cpp"
+#include "hello_common.h"
 
 char *LoadFile(const char *Filename, bool *Success) {
     char *FileContents;
@@ -48,3 +39,5 @@ char *LoadFile(const char *Filename, bool *Success) {
 }
 
 int main() { return run(); }
+
+#endif
