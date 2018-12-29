@@ -218,7 +218,7 @@ void PrintAll(GLuint Programme) {
                           Name);
         if (Size > 1) {
             for (int j = 0; j < Size; j++) {
-                char LongName[64];
+                char LongName[128];
                 sprintf(LongName, "%s[%i]", Name, j);
                 int Location = glGetAttribLocation(Programme, LongName);
                 printf("  %i) Type:%s Name:%s Location:%i\n", i,
@@ -243,7 +243,7 @@ void PrintAll(GLuint Programme) {
                            Name);
         if (Size > 1) {
             for (int j = 0; j < Size; j++) {
-                char LongName[64];
+                char LongName[128];
                 sprintf(LongName, "%s[%i]", Name, j);
                 int Location = glGetUniformLocation(Programme, LongName);
                 printf("  %i) Type:%s Name:%s Location:%i\n", i,
